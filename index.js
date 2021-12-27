@@ -18,22 +18,25 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
     try {
         await client.connect();
-        console.log('database is connecting');
         const database = client.db('cycleDB');
         const cyclesCollection = database.collection('cycles');
 
-        app.post('/Cycle',async(req,res) => {
-           const product = req.body;
-           const result = await cyclesCollection.insertOne(product);
-           res.json(result);    
+        app.post('/Cycle', async (req, res) => {
+            const product = req.body;
+            const result = await cyclesCollection.insertOne(product);
+            res.json(result);
         });
 
-        app.get('/products',async(req,res) => {
-            const query = { runtime: { $lt: 6 } };
-            const cursor =  cyclesCollection.find(query);
-            console.log('cursor found',cursor);
-            const products = await cursor._list.toArray();
-            res.json(products);
+        app.get('/products', async (req, res) => {
+            const cursor = cyclesCollection.find({});
+            const page = 1;
+            const size = 6;
+            let products;
+            if(page){
+                products = await cursor.skip(page*size).limit(size).toArray();
+            }
+            console.log('load proudcts',products);
+            res.send(products);
         })
 
     }
