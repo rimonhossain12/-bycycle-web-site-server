@@ -46,8 +46,16 @@ async function run() {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await cyclesCollection.findOne(query);
-            console.log('found data',result);
+            console.log('found data', result);
             res.json(result);
+        })
+        // send data with filter user email
+        app.get('/users/:email', async (req, res) => {
+            const email = req.params.email;
+            const cursor = ordersCollection.find({email});
+            const orders = await cursor.toArray();
+            res.send(orders);
+
         })
         // add data in the database
         app.post('/Cycle', async (req, res) => {
@@ -62,11 +70,20 @@ async function run() {
             res.json(addUser);
         });
         // save user order data
-        app.post('/orders',async(req,res) => {
+        app.post('/orders', async (req, res) => {
             const order = req.body;
             const addOrder = await ordersCollection.insertOne(order);
             res.json(addOrder);
             console.log(addOrder);
+        });
+        // delete user order
+        app.delete('/orders/:id',async(req,res) => {
+            console.log('delete api is hitting');
+            const id = req.params.id;
+            const query = {_id: ObjectId(id)};
+            const result = await ordersCollection.deleteOne(query);
+            console.log(result);
+            res.json(result);
         })
     }
     finally {
