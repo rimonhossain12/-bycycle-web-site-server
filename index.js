@@ -57,6 +57,13 @@ async function run() {
             res.send(orders);
 
         })
+        // all the orders product
+        app.get('/allOrders',async(req,res) => {
+            console.log('all order api hitting');
+            const cursor = ordersCollection.find({});
+            const allOrders = await cursor.toArray();
+            res.json(allOrders);
+        })
         // add data in the database
         app.post('/Cycle', async (req, res) => {
             const product = req.body;
