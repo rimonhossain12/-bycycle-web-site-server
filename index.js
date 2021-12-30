@@ -59,7 +59,6 @@ async function run() {
         })
         // all the orders product
         app.get('/allOrders',async(req,res) => {
-            console.log('all order api hitting');
             const cursor = ordersCollection.find({});
             const allOrders = await cursor.toArray();
             res.json(allOrders);
@@ -73,6 +72,7 @@ async function run() {
         // save registration user to the database
         app.post('/users', async (req, res) => {
             const user = req.body;
+            console.log('use api ',user);
             const addUser = await usersCollection.insertOne(user);
             res.json(addUser);
         });
