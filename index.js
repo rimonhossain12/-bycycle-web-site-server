@@ -40,6 +40,14 @@ async function run() {
             }
             res.send(products);
         });
+        // user order
+        app.get('/myOrders/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email };
+            const cursor = ordersCollection.find(query);
+            const result = await cursor.toArray();
+            res.json(result);
+        })
         // find specific data from database 
         app.get('/products/:id', async (req, res) => {
             console.log('load single product id hitting');
@@ -51,11 +59,9 @@ async function run() {
         })
         // found admin
         app.get('/users/:email', async (req, res) => {
-            console.log('admin found api hitting');
             const email = req.params.email;
             const query = { email: email };
             const user = await usersCollection.findOne(query);
-            console.log('user admin',user);
             let isAdmin = false;
             if (user?.role === 'Admin') {
                 isAdmin = true;
