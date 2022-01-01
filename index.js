@@ -49,16 +49,30 @@ async function run() {
             console.log('found data', result);
             res.json(result);
         })
+        // found admin
+        app.get('/users/:email', async (req, res) => {
+            console.log('admin found api hitting');
+            const email = req.params.email;
+            const query = { email: email };
+            const user = await usersCollection.findOne(query);
+            console.log('user admin',user);
+            let isAdmin = false;
+            if (user?.role === 'Admin') {
+                isAdmin = true;
+            }
+            res.json({ admin: isAdmin });
+        })
+
         // send data with filter user email
         app.get('/users/:email', async (req, res) => {
             const email = req.params.email;
-            const cursor = ordersCollection.find({email});
+            const cursor = ordersCollection.find({ email });
             const orders = await cursor.toArray();
             res.send(orders);
 
         })
         // all the orders product
-        app.get('/allOrders',async(req,res) => {
+        app.get('/allOrders', async (req, res) => {
             const cursor = ordersCollection.find({});
             const allOrders = await cursor.toArray();
             res.json(allOrders);
@@ -72,10 +86,23 @@ async function run() {
         // save registration user to the database
         app.post('/users', async (req, res) => {
             const user = req.body;
-            console.log('use api ',user);
+            console.log('use api ', user);
             const addUser = await usersCollection.insertOne(user);
             res.json(addUser);
         });
+        // save user from on browser at on time login
+        app.put('/users', async (req, res) => {
+            const user = req.body;
+            const filter = { email: user.email };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: { user }
+            }
+            const result = await usersCollection.updateOne(filter, updateDoc, options);
+            console.log('user added', result);
+            res.json(result);
+
+        })
         // save user order data
         app.post('/orders', async (req, res) => {
             const order = req.body;
@@ -83,11 +110,21 @@ async function run() {
             res.json(addOrder);
             console.log(addOrder);
         });
+        app.put('/makeAdmin', async (req, res) => {
+            const user = req.body;
+            const filter = { email: user.email };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: { role: 'Admin' }
+            }
+            const result = await usersCollection.updateOne(filter, updateDoc, options);
+            console.log('make admin', result);
+        })
         // delete user order
-        app.delete('/orders/:id',async(req,res) => {
+        app.delete('/orders/:id', async (req, res) => {
             console.log('delete api is hitting');
             const id = req.params.id;
-            const query = {_id: ObjectId(id)};
+            const query = { _id: ObjectId(id) };
             const result = await ordersCollection.deleteOne(query);
             console.log(result);
             res.json(result);
