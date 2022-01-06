@@ -23,6 +23,7 @@ async function run() {
         const cyclesCollection = database.collection('cycles');
         const usersCollection = database.collection('users');
         const ordersCollection = database.collection('orders');
+        const reviewCollection = database.collection('review');
 
         // get all the data from database
         app.get('/allProducts', async (req, res) => {
@@ -89,6 +90,12 @@ async function run() {
             const result = await cyclesCollection.insertOne(product);
             res.json(result);
         });
+        // client review 
+        app.get('/client/review',async(req,res) => {
+            const cursor = reviewCollection.find({});
+            const result = await cursor.toArray();
+            res.json(result);
+        })
         // save registration user to the database
         app.post('/users', async (req, res) => {
             const user = req.body;
@@ -96,6 +103,15 @@ async function run() {
             const addUser = await usersCollection.insertOne(user);
             res.json(addUser);
         });
+        // user review
+        app.post('/user/review',async(req,res) => {
+            console.log('user review api hitting');
+            const review = req.body;
+            console.log('review',review);
+            const addReview = await reviewCollection.insertOne(review);
+            console.log(addReview);
+            res.json(addReview);
+        })
         // save user from on browser at on time login
         app.put('/users', async (req, res) => {
             const user = req.body;
