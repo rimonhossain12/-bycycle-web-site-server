@@ -69,7 +69,6 @@ async function run() {
             }
             res.json({ admin: isAdmin });
         })
-
         // send data with filter user email
         app.get('/users/:email', async (req, res) => {
             const email = req.params.email;
