@@ -1,5 +1,6 @@
 const { MongoClient } = require('mongodb');
 const express = require('express')
+const { initializeApp } = require('firebase-admin/app');
 const app = express()
 const ObjectId = require('mongodb').ObjectId;
 const cors = require('cors');
@@ -14,6 +15,15 @@ app.use(express.json());
 // connection string
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ygqbm.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+
+// function for jwt token
+async function verify(res,req,next){
+    if(req.headers.authorization.startsWith('Bearer ')){
+        const idToken = req.headers.authorization().split(' ')[1];
+        console.log('inside idtoken = ',idToken);
+    }
+    next()
+}
 
 
 async function run() {
@@ -43,6 +53,7 @@ async function run() {
         });
         // user order
         app.get('/myOrders/:email', async (req, res) => {
+            console.log('jwt token found',req.headers.authorization);
             const email = req.params.email;
             const query = { email };
             const cursor = ordersCollection.find(query);
@@ -74,6 +85,7 @@ async function run() {
             const email = req.params.email;
             const cursor = ordersCollection.find({ email });
             const orders = await cursor.toArray();
+            console.log(orders)
             res.send(orders);
 
         })
