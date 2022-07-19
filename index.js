@@ -1,5 +1,6 @@
 const { MongoClient } = require('mongodb');
 const express = require('express')
+var admin = require("firebase-admin");
 const app = express()
 const ObjectId = require('mongodb').ObjectId;
 const cors = require('cors');
@@ -11,9 +12,34 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+// firebase admin initialization 
+
+var serviceAccount = require('./bicycle-application-firebase-adminsdk-5bp4m-c0652e8069.json');
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+});
+
 // connection string
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ygqbm.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+
+// jwt token 
+async function verifyToken(req,res,next){
+    if(req.headers?.authorization?.startsWith('Bearer ')){
+        const idToken = req.headers.authorization.split(' ')[1];
+        // console.log('inside server testing = ',idToken);
+        try{
+           const decodedUser = await admin.auth().verifyIdToken(idToken);
+           req.decodedUserEmail = decodedUser.email;
+
+        }
+        catch{
+
+        }
+        
+    }
+    next();
+}
 
 
 async function run() {
@@ -42,12 +68,18 @@ async function run() {
             res.send(products);
         });
         // user order
-        app.get('/myOrders/:email', async (req, res) => {
+        app.get('/myOrders/:email', verifyToken, async (req, res) => {           
             const email = req.params.email;
-            const query = { email };
-            const cursor = ordersCollection.find(query);
-            const result = await cursor.toArray();
-            res.json(result);
+            if (req.decodedUserEmail === email) {
+                console.log(req.decodedUserEmail);
+                const query = { email };
+                const cursor = ordersCollection.find(query);
+                const result = await cursor.toArray();
+                res.json(result);
+            }else{
+                res.status(401).json({message:"User not authorized! Please login"});
+            }
+            
         })
         // find specific data from database 
         app.get('/products/:id', async (req, res) => {
@@ -69,6 +101,7 @@ async function run() {
             }
             res.json({ admin: isAdmin });
         })
+        
         // send data with filter user email
         app.get('/users/:email', async (req, res) => {
             const email = req.params.email;
