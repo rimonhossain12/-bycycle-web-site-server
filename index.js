@@ -107,6 +107,7 @@ async function run() {
             const email = req.params.email;
             const cursor = ordersCollection.find({ email });
             const orders = await cursor.toArray();
+            console.log(orders)
             res.send(orders);
 
         })
