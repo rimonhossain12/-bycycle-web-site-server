@@ -1,6 +1,6 @@
 const { MongoClient } = require('mongodb');
 const express = require('express')
-var admin = require("firebase-admin");
+const admin = require("firebase-admin");
 const app = express()
 const ObjectId = require('mongodb').ObjectId;
 const cors = require('cors');
@@ -8,19 +8,27 @@ const bodyParser = require('body-parser')
 require('dotenv').config()
 
 const port = process.env.PORT || 5000;
+
+const Parse = require('parse/node');
+
+Parse.initialize("QzZD6v8docsYqN2up7K6HGwLsYzptk1A0o0MtV5N","f4yP370pTSUCrK9ylS2vZDGOG805wqoAsV2aORoa"); //PASTE HERE YOUR Back4App APPLICATION ID AND YOUR JavaScript KEY
+Parse.serverURL = 'https://parseapi.back4app.com/'
+
+
 // middle ware
 app.use(cors());
 app.use(express.json());
 
 // firebase admin initialization 
 
-var serviceAccount = require('./bicycle-application-firebase-adminsdk-5bp4m-c0652e8069.json');
+const serviceAccount = require('./bicycle-application-firebase-adminsdk-5bp4m-c0652e8069.json');
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
 });
 
+
 // connection string
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ygqbm.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ygqbm.mongodb.git net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
 // jwt token 
@@ -93,6 +101,7 @@ async function run() {
         // found admin
         app.get('/users/:email', async (req, res) => {
             const email = req.params.email;
+            // console.log('admin email',email);
             const query = { email: email };
             const user = await usersCollection.findOne(query);
             let isAdmin = false;
