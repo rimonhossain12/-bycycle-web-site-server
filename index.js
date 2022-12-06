@@ -9,11 +9,6 @@ require('dotenv').config()
 
 const port = process.env.PORT || 5000;
 
-const Parse = require('parse/node');
-
-Parse.initialize("QzZD6v8docsYqN2up7K6HGwLsYzptk1A0o0MtV5N","f4yP370pTSUCrK9ylS2vZDGOG805wqoAsV2aORoa"); //PASTE HERE YOUR Back4App APPLICATION ID AND YOUR JavaScript KEY
-Parse.serverURL = 'https://parseapi.back4app.com/'
-
 
 // middle ware
 app.use(cors());
